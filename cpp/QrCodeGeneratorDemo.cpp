@@ -1,12 +1,12 @@
-/* 
+﻿/*
  * QR Code generator demo (C++)
- * 
+ *
  * Run this command-line program with no arguments. The program computes a bunch of demonstration
  * QR Codes and prints them to the console. Also, the SVG code for one QR Code is printed as a sample.
- * 
+ *
  * Copyright (c) Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/qr-code-generator-library
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to
@@ -24,6 +24,7 @@
  *   Software.
  */
 
+#include <iostream>
 #include <climits>
 #include <cstdint>
 #include <cstdlib>
@@ -38,18 +39,24 @@ using std::uint8_t;
 using qrcodegen::QrCode;
 using qrcodegen::QrSegment;
 
+using namespace std;
 
 // Function prototypes
 static void doBasicDemo();
 static void doVarietyDemo();
 static void doSegmentDemo();
 static void doMaskDemo();
-static std::string toSvgString(const QrCode &qr, int border);
-static void printQr(const QrCode &qr);
+static std::string toSvgString(const QrCode& qr, int border);
+static void printQr(const QrCode& qr);
+static void depend();
 
+string str;
+const char* txt;
 
 // The main application program.
-int main() {
+int main() 
+{
+	depend();
 	doBasicDemo();
 	doVarietyDemo();
 	doSegmentDemo();
@@ -61,11 +68,17 @@ int main() {
 
 /*---- Demo suite ----*/
 
+static void depend() // just write a text that u want to convert in QR
+{
+	cout << "Text:" << endl;
+	getline(cin, str);
+	txt = str.c_str();
+}
 // Creates a single QR Code, then prints it to the console.
 static void doBasicDemo() {
-	const char *text = "Hello, world!";              // User-supplied text
+	const char* text = txt;              // User-supplied text
 	const QrCode::Ecc errCorLvl = QrCode::Ecc::LOW;  // Error correction level
-	
+
 	// Make and print the QR Code symbol
 	const QrCode qr = QrCode::encodeText(text, errCorLvl);
 	printQr(qr);
@@ -78,16 +91,16 @@ static void doVarietyDemo() {
 	// Numeric mode encoding (3.33 bits per digit)
 	const QrCode qr0 = QrCode::encodeText("314159265358979323846264338327950288419716939937510", QrCode::Ecc::MEDIUM);
 	printQr(qr0);
-	
+
 	// Alphanumeric mode encoding (5.5 bits per character)
 	const QrCode qr1 = QrCode::encodeText("DOLLAR-AMOUNT:$39.87 PERCENTAGE:100.00% OPERATIONS:+-*/", QrCode::Ecc::HIGH);
 	printQr(qr1);
-	
+
 	// Unicode text as UTF-8
 	const QrCode qr2 = QrCode::encodeText("\xE3\x81\x93\xE3\x82\x93\xE3\x81\xAB\xE3\x81\xA1wa\xE3\x80\x81"
 		"\xE4\xB8\x96\xE7\x95\x8C\xEF\xBC\x81\x20\xCE\xB1\xCE\xB2\xCE\xB3\xCE\xB4", QrCode::Ecc::QUARTILE);
 	printQr(qr2);
-	
+
 	// Moderately large QR Code using longer text (from Lewis Carroll's Alice in Wonderland)
 	const QrCode qr3 = QrCode::encodeText(
 		"Alice was beginning to get very tired of sitting by her sister on the bank, "
@@ -100,39 +113,38 @@ static void doVarietyDemo() {
 	printQr(qr3);
 }
 
-
 // Creates QR Codes with manually specified segments for better compactness.
 static void doSegmentDemo() {
 	// Illustration "silver"
-	const char *silver0 = "THE SQUARE ROOT OF 2 IS 1.";
-	const char *silver1 = "41421356237309504880168872420969807856967187537694807317667973799";
+	const char* silver0 = "THE SQUARE ROOT OF 2 IS 1.";
+	const char* silver1 = "41421356237309504880168872420969807856967187537694807317667973799";
 	const QrCode qr0 = QrCode::encodeText(
 		(std::string(silver0) + silver1).c_str(),
 		QrCode::Ecc::LOW);
 	printQr(qr0);
-	
+
 	const QrCode qr1 = QrCode::encodeSegments(
-		{QrSegment::makeAlphanumeric(silver0), QrSegment::makeNumeric(silver1)},
+		{ QrSegment::makeAlphanumeric(silver0), QrSegment::makeNumeric(silver1) },
 		QrCode::Ecc::LOW);
 	printQr(qr1);
-	
+
 	// Illustration "golden"
-	const char *golden0 = "Golden ratio \xCF\x86 = 1.";
-	const char *golden1 = "6180339887498948482045868343656381177203091798057628621354486227052604628189024497072072041893911374";
-	const char *golden2 = "......";
+	const char* golden0 = "Golden ratio \xCF\x86 = 1.";
+	const char* golden1 = "6180339887498948482045868343656381177203091798057628621354486227052604628189024497072072041893911374";
+	const char* golden2 = "......";
 	const QrCode qr2 = QrCode::encodeText(
 		(std::string(golden0) + golden1 + golden2).c_str(),
 		QrCode::Ecc::LOW);
 	printQr(qr2);
-	
+
 	std::vector<uint8_t> bytes(golden0, golden0 + std::strlen(golden0));
 	const QrCode qr3 = QrCode::encodeSegments(
-		{QrSegment::makeBytes(bytes), QrSegment::makeNumeric(golden1), QrSegment::makeAlphanumeric(golden2)},
+		{ QrSegment::makeBytes(bytes), QrSegment::makeNumeric(golden1), QrSegment::makeAlphanumeric(golden2) },
 		QrCode::Ecc::LOW);
 	printQr(qr3);
-	
+
 	// Illustration "Madoka": kanji, kana, Cyrillic, full-width Latin, Greek characters
-	const char *madoka =  // Encoded in UTF-8
+	const char* madoka =  // Encoded in UTF-8
 		"\xE3\x80\x8C\xE9\xAD\x94\xE6\xB3\x95\xE5"
 		"\xB0\x91\xE5\xA5\xB3\xE3\x81\xBE\xE3\x81"
 		"\xA9\xE3\x81\x8B\xE2\x98\x86\xE3\x83\x9E"
@@ -144,7 +156,7 @@ static void doSegmentDemo() {
 		"\xBC\x9F";
 	const QrCode qr4 = QrCode::encodeText(madoka, QrCode::Ecc::LOW);
 	printQr(qr4);
-	
+
 	const std::vector<int> kanjiChars{  // Kanji mode encoding (13 bits per character)
 		0x0035, 0x1002, 0x0FC0, 0x0AED, 0x0AD7,
 		0x015C, 0x0147, 0x0129, 0x0059, 0x01BD,
@@ -157,7 +169,7 @@ static void doSegmentDemo() {
 	for (int c : kanjiChars)
 		bb.appendBits(static_cast<std::uint32_t>(c), 13);
 	const QrCode qr5 = QrCode::encodeSegments(
-		{QrSegment(QrSegment::Mode::KANJI, static_cast<int>(kanjiChars.size()), bb)},
+		{ QrSegment(QrSegment::Mode::KANJI, static_cast<int>(kanjiChars.size()), bb) },
 		QrCode::Ecc::LOW);
 	printQr(qr5);
 }
@@ -169,7 +181,7 @@ static void doMaskDemo() {
 	std::vector<QrSegment> segs0 = QrSegment::makeSegments("https://www.nayuki.io/");
 	printQr(QrCode::encodeSegments(segs0, QrCode::Ecc::HIGH, QrCode::MIN_VERSION, QrCode::MAX_VERSION, -1, true));  // Automatic mask
 	printQr(QrCode::encodeSegments(segs0, QrCode::Ecc::HIGH, QrCode::MIN_VERSION, QrCode::MAX_VERSION, 3, true));  // Force mask 3
-	
+
 	// Chinese text as UTF-8
 	std::vector<QrSegment> segs1 = QrSegment::makeSegments(
 		"\xE7\xB6\xAD\xE5\x9F\xBA\xE7\x99\xBE\xE7\xA7\x91\xEF\xBC\x88\x57\x69\x6B\x69\x70"
@@ -191,12 +203,12 @@ static void doMaskDemo() {
 
 // Returns a string of SVG code for an image depicting the given QR Code, with the given number
 // of border modules. The string always uses Unix newlines (\n), regardless of the platform.
-static std::string toSvgString(const QrCode &qr, int border) {
+static std::string toSvgString(const QrCode& qr, int border) {
 	if (border < 0)
 		throw std::domain_error("Border must be non-negative");
 	if (border > INT_MAX / 2 || border * 2 > INT_MAX - qr.getSize())
 		throw std::overflow_error("Border too large");
-	
+
 	std::ostringstream sb;
 	sb << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 	sb << "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n";
@@ -220,7 +232,7 @@ static std::string toSvgString(const QrCode &qr, int border) {
 
 
 // Prints the given QrCode object to the console.
-static void printQr(const QrCode &qr) {
+static void printQr(const QrCode& qr) {
 	int border = 4;
 	for (int y = -border; y < qr.getSize() + border; y++) {
 		for (int x = -border; x < qr.getSize() + border; x++) {
@@ -230,3 +242,4 @@ static void printQr(const QrCode &qr) {
 	}
 	std::cout << std::endl;
 }
+ 
